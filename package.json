@@ -1,0 +1,23 @@
+{
+  "name": "mjpeg-raspi-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ra100/mjpeg-raspi-server.git"
+  },
+  "author": "ra100",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ra100/mjpeg-raspi-server/issues"
+  },
+  "homepage": "https://github.com/ra100/mjpeg-raspi-server#readme",
+  "dependencies": {
+    "fastify": "^3.22.1",
+    "fastify-static": "^4.4.2"
+  }
+}
