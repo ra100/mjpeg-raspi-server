@@ -8,7 +8,7 @@ const fastify = Fastify({
 })
 
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, 'static'),
+  root: path.join(__dirname, '../../public'),
   prefix: '/',
 })
 
