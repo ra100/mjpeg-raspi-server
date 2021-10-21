@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
+    "build:server": "rollup --config rollup.server.config.js",
     "dev": "rollup -c -w",
+    "dev:server": "rollup --config rollup.server.config.js -w",
     "start": "sirv public --no-clear",
     "start:server": "node src/server/index.js",
     "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -27,7 +29,11 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-run": "^2.1.0",
+    "@rollup/plugin-typescript": "^8.0.0",
+    "@tsconfig/svelte": "^2.0.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -36,9 +42,7 @@
     "svelte": "^3.0.0",
     "svelte-check": "^2.0.0",
     "svelte-preprocess": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.0.0",
-    "typescript": "^4.0.0",
     "tslib": "^2.0.0",
-    "@tsconfig/svelte": "^2.0.0"
+    "typescript": "^4.0.0"
   }
 }

@@ -1,14 +1,14 @@
-const path = require('path')
+import path from 'path'
 
-const Fastify = require('fastify')
-const fastifyStatic = require('fastify-static')
+import Fastify from 'fastify'
+import fastifyStatic from 'fastify-static'
 
 const fastify = Fastify({
   logger: true,
 })
 
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, '../../public'),
+  root: path.join(__dirname, '../public'),
   prefix: '/',
 })
 
