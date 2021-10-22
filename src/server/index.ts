@@ -2,6 +2,7 @@ import path from 'path'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
+import {Config, getStatus, start, stop} from './camera'
 
 const fastify = Fastify({
   logger: true,
@@ -16,12 +17,18 @@ fastify.get('/', (request, reply) => {
   reply.sendFile('index.html')
 })
 
-fastify.post('/actions/start', (request, reply) => {
+fastify.post<Config>('/actions/start', async (request, reply) => {
+  await start(request.body)
   reply.send({result: 'started'})
 })
 
-fastify.post('/actions/stop', (request, reply) => {
+fastify.post('/actions/stop', async (request, reply) => {
+  await stop()
   reply.send({result: 'stopped'})
+})
+
+fastify.get('/status', (request, reply) => {
+  reply.send(getStatus())
 })
 
 // Run the server!
