@@ -56,20 +56,20 @@
   <button on:click={handleLogs}>Get Logs</button>
   <button on:click={handleClearLogs}>Clear Logs</button>
 	<div class="config">
-		<div class="field-fps">
+		<div class="field-fps field">
 			<label for="fps">FPS</label>
 			<input type="number" name="fps" bind:value={config.fps}/>
 		</div>
-		<div class="field-width">
+		<div class="field-width field">
 			<label for="width">Width</label>
 			<input type="text" name="width" bind:value={config.width}/>
 		</div>
-		<div class="field-args">
+		<div class="field-args field">
 			<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
 			<input type="text" name="args" bind:value={config.args}/>
 		</div>
 	</div>
-	<a href={streamUrl} target="_blank">Open video stream</a>
+	<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
 	{#if status === 'camera_on'}
 		<img src={streamUrl} alt="Video Stream" />
 	{/if}
@@ -96,15 +96,34 @@
 		align-items: center;
 	}
 
+	.field {
+		margin: 0 1rem;
+	}
+
 	.field-fps {
-		width: 50px
+		width: 3rem;
 	}
 
 	.field-width {
-		width: 100px
+		width: 4rem;
 	}
 
 	.field-args {
 		flex: 1;
+	}
+
+	input {
+		max-width: 100%;
+	}
+
+	.field-args input {
+		width: 100%;
+	}
+
+	.stream-button {
+		clear: both;
+		margin: auto;
+		width: 100%;
+		text-align: center;
 	}
 </style>
