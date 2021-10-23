@@ -21,7 +21,7 @@ Install nodejs on your Raspberry Pi.
   - run `NVM_NODEJS_ORG_MIRROR=https://unofficial-builds.nodejs.org/download/release/ nvm install 17`
   - for armv7 run `nvm install 17`
 - install mjpg-streamer:
-  - TODO
+  - follow the instructions on how to build: https://github.com/jacksonliam/mjpg-streamer#building--installation
 - checkout this repository and build the project:
   - run:
   ```shell

@@ -66,7 +66,7 @@ export const start = (config: Config): Promise<void> => {
       reject()
     })
 
-    task.instance.on('close', code => {
+    task.instance.on('close', (code) => {
       task.status = 'closed'
       task.messages.add(`child task exited with code ${code}`)
       reject()
@@ -81,8 +81,8 @@ export const stop = (): Promise<void> => {
 
   task.instance.kill()
 
-  return new Promise(resolve => {
-    task.instance.on('close', code => {
+  return new Promise((resolve) => {
+    task.instance.on('close', (code) => {
       task.status = 'closed'
       resolve()
     })
