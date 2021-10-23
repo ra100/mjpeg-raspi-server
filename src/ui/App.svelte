@@ -16,6 +16,9 @@
     try {
       const response = await fetch(path, {
 				method,
+				headers: body ? {
+					'Content-Type': 'application/json'
+				} : {},
 				body: body ? JSON.stringify(body) : null
 			})
 
@@ -41,7 +44,6 @@
   const handleLogs = async () => {
 		const statusResponse = await callApi('status', 'GET')
 		logs += statusResponse.messages ? `\n${new Date()}\n${statusResponse.messages}\n` : ''
-		logs += statusResponse.errors ? `\n${new Date()}\n${statusResponse.errors}\n` : ''
 		status = statusResponse.status
 	}
 
@@ -54,16 +56,23 @@
   <button on:click={handleLogs}>Get Logs</button>
   <button on:click={handleClearLogs}>Clear Logs</button>
 	<div class="config">
-		<label for="fps">FPS</label>
-		<input type="number" name="fps" bind:value={config.fps}/>
-		<label for="width">Width</label>
-		<input type="text" name="width" bind:value={config.width}/>
-		<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
-		<input type="text" name="args" bind:value={config.args}/>
-		{#if status === 'camera_on'}
-			<img src={streamUrl} alt="Video Stream" />
-		{/if}
+		<div class="field-fps">
+			<label for="fps">FPS</label>
+			<input type="number" name="fps" bind:value={config.fps}/>
+		</div>
+		<div class="field-width">
+			<label for="width">Width</label>
+			<input type="text" name="width" bind:value={config.width}/>
+		</div>
+		<div class="field-args">
+			<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
+			<input type="text" name="args" bind:value={config.args}/>
+		</div>
 	</div>
+	<a href={streamUrl} target="_blank">Open video stream</a>
+	{#if status === 'camera_on'}
+		<img src={streamUrl} alt="Video Stream" />
+	{/if}
 	<p>Status: {status} {message}</p>
 	<textarea class="logs">{logs}</textarea>
 </main>
@@ -78,5 +87,24 @@
 	.logs {
 		width: 500px;
 		min-height: 300px;
+	}
+
+	.config {
+		display: flex;
+		flex-flow: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.field-fps {
+		width: 50px
+	}
+
+	.field-width {
+		width: 100px
+	}
+
+	.field-args {
+		flex: 1;
 	}
 </style>
