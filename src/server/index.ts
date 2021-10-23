@@ -31,7 +31,7 @@ fastify.get('/status', (request, reply) => {
   reply.send(getStatus())
 })
 
-// Run the server!
-fastify.listen(3000, (err, address) => {
+fastify.listen(process.env.PORT || 3000, '0.0.0.0', (err, address) => {
   if (err) throw err
+  console.log(`Server listening on ${address}`)
 })

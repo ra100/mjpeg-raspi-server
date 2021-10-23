@@ -8,6 +8,7 @@
 		aspectRatio: 1920 / 1080,
 		args: ''
 	}
+	export const streamUrl: string = `http://${document.domain}:8080/?action=stream`;
 
   const callApi = async (path: string, method: 'POST' | 'GET' = 'POST', body?: Record<string, any>) => {
 		message = 'Loading'
@@ -59,6 +60,9 @@
 		<input type="text" name="width" bind:value={config.width}/>
 		<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
 		<input type="text" name="args" bind:value={config.args}/>
+		{#if status === 'camera_on'}
+			<img src={streamUrl} alt="Video Stream" />
+		{/if}
 	</div>
 	<p>Status: {status} {message}</p>
 	<textarea class="logs">{logs}</textarea>

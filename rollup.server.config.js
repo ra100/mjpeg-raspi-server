@@ -1,4 +1,3 @@
-import json from '@rollup/plugin-json'
 import typescript from '@rollup/plugin-typescript'
 import run from '@rollup/plugin-run'
 
@@ -12,5 +11,5 @@ export default {
     format: 'cjs',
   },
 
-  plugins: [typescript({sourceMap: true}), dev && run()],
+  plugins: [typescript({sourceMap: dev && true}), dev && run()],
 }
