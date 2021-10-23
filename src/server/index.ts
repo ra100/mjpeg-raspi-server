@@ -17,7 +17,7 @@ fastify.get('/', (request, reply) => {
   reply.sendFile('index.html')
 })
 
-fastify.post<Config>('/actions/start', async (request, reply) => {
+fastify.post<{Body: Config}>('/actions/start', async (request, reply) => {
   await start(request.body)
   reply.send({result: 'started'})
 })

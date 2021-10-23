@@ -1,10 +1,17 @@
 import {spawn, ChildProcess} from 'child_process'
 
-export type Config = {}
+export type Config = {
+  fps?: number
+  width?: number
+  aspectRatio?: number
+  args?: string
+}
 
-const process: {
+type Status = 'running' | 'closed' | 'starting' | 'camera_on'
+
+const task: {
   instance: ChildProcess | null
-  status: string
+  status: Status
   messages: Set<string>
   errors: Set<string>
 } = {
@@ -14,41 +21,69 @@ const process: {
   errors: new Set(),
 }
 
+const defaultAspectRatio = 1920 / 1080
+
+const getCameraOptions = ({
+  fps = 5,
+  width = 800,
+  aspectRatio = defaultAspectRatio,
+  args = '',
+}: Config = {}): string[] =>
+  [
+    '-o',
+    `output_http.so -w ./www -p 8080`,
+    '-i',
+    'input_raspicam.so',
+    '-fps',
+    `${fps}`,
+    '-x',
+    `${width}`,
+    '-y',
+    `${Math.floor(width / aspectRatio)}`,
+    args,
+  ].filter(Boolean)
+
 export const start = (config: Config): Promise<void> => {
-  process.instance = spawn('watch', ['ls'])
+  const path = process.env.MJPEG_CAMERA_PATH || __dirname
+  task.instance = spawn('mjpg_streamer', getCameraOptions(), {cwd: path})
 
-  process.instance.stdout.on('data', (data: Buffer) => {
-    process.messages.add(data.toString())
+  task.instance.stdout.on('data', (data: Buffer) => {
+    task.messages.add(data.toString())
   })
 
-  process.instance.stderr.on('data', (data: Buffer) => {
-    process.messages.add(data.toString())
-  })
-
-  process.instance.on('close', code => {
-    process.status = 'closed'
-    console.log(`child process exited with code ${code}`)
+  task.instance.stderr.on('data', (data: Buffer) => {
+    task.messages.add(data.toString())
   })
 
   return new Promise((resolve, reject) => {
-    process.instance.on('spawn', () => {
-      process.status = 'running'
+    task.instance.on('spawn', () => {
+      task.status = 'running'
       resolve()
     })
 
-    process.instance.on('error', () => {
-      process.status = 'running'
+    task.instance.on('error', () => {
+      task.status = 'running'
+      reject()
+    })
+
+    task.instance.on('close', code => {
+      task.status = 'closed'
+      task.messages.add(`child task exited with code ${code}`)
       reject()
     })
   })
 }
 
 export const stop = (): Promise<void> => {
-  process.instance.kill()
+  if (task.status !== 'running') {
+    return Promise.resolve()
+  }
+
+  task.instance.kill()
 
   return new Promise(resolve => {
-    process.instance.on('close', code => {
-      process.status = 'closed'
+    task.instance.on('close', code => {
+      task.status = 'closed'
       resolve()
     })
   })
@@ -59,13 +94,13 @@ export const getStatus = (): {
   messages: string
   errors: string
 } => {
-  const messages = [...process.messages].join('\n')
-  const errors = [...process.errors].join('\n')
-  process.messages.clear()
-  process.errors.clear()
+  const messages = [...task.messages].join('\n')
+  const errors = [...task.errors].join('\n')
+  task.messages.clear()
+  task.errors.clear()
 
   return {
-    status: process.status,
+    status: task.status,
     messages,
     errors,
   }
