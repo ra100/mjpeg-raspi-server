@@ -47,3 +47,9 @@ or
 ```shell
 MJPEG_CAMERA_PATH=/home/pi/mjpg-streamer/mjpg-streamer-experimental npm start
 ```
+
+To have it automatically start on boot:
+
+- modify `mjpeg.service` to match your configuration -> node path and mjpg-streamer path
+- `sudo make service`
+- `sudo systemctl start mjpeg.service`

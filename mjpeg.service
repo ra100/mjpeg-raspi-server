@@ -1,0 +1,21 @@
+[Unit]
+Description=MJPEG Camera Runner
+
+[Service]
+ExecStart=/home/pi/.nvm/versions/node/v17.0.1/bin/node /home/pi/mjpeg-raspi-server/build/index.js
+# Required on some systems
+WorkingDirectory=/home/pi/mjpeg-raspi-server/
+Restart=always
+# Restart service after 10 seconds if node service crashes
+RestartSec=10
+
+# Output to syslog
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=mjpeg-node
+#User=<alternate user>
+#Group=<alternate group>
+Environment=NODE_ENV=production PORT=3000 MJPEG_CAMERA_PATH=/home/pi/mjpg-streamer/mjpg-streamer-experimental
+
+[Install]
+WantedBy=multi-user.target
