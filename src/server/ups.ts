@@ -66,7 +66,7 @@ export class INA219 {
   private busADCresolution: number
   private shuntADCresolution: number
   private mode: number
-  private config: Set<number>
+  private config: number
 
   public bus: I2CBus
   public address: number
@@ -89,8 +89,8 @@ export class INA219 {
 
   private write(address: number, data: any): void {
     const temp = [0, 0]
-    temp[1] = data && 0xff
-    temp[0] = (data && 0xff00) >> 8
+    temp[1] = data & 0xff
+    temp[0] = (data & 0xff00) >> 8
 
     this.bus.writeI2cBlockSync(
       this.address,
@@ -182,13 +182,12 @@ export class INA219 {
     this.busADCresolution = ADCResolution.ADCRES_12BIT_32S
     this.shuntADCresolution = ADCResolution.ADCRES_12BIT_32S
     this.mode = Mode.SANDBVOLT_CONTINUOUS
-    this.config = new Set([
-      this.busVoltageRange << 13,
-      this.gain << 11,
-      this.busADCresolution << 7,
-      this.shuntADCresolution << 3,
-      this.mode,
-    ])
+    this.config =
+      (this.busVoltageRange << 13) +
+      (this.gain << 11) +
+      (this.busADCresolution << 7) +
+      (this.shuntADCresolution << 3) +
+      this.mode
     this.write(_REG_CONFIG, this.config)
   }
 
