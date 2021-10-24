@@ -1,7 +1,12 @@
 <script lang="ts">
+	import {onMount} from 'svelte';
+
+	import type {UPSstate} from "../server/ups";
+
   export let message: string = ''
 	export let logs: string = ''
 	export let status: string = 'offline'
+	export let battery: UPSstate | null = null
 	export const config = {
 		fps: 5,
 		width: 800,
@@ -48,6 +53,15 @@
 	}
 
 	const handleClearLogs = () => {logs = ''}
+
+	const getBattery = () => {
+		callApi('battery', 'GET').then((batteryStatus) => {battery = batteryStatus})
+	}
+
+	onMount(() => {
+		getBattery()
+		setInterval(getBattery, 20_000)
+	})
 </script>
 
 <main>
@@ -73,7 +87,14 @@
 	{#if status === 'camera_on'}
 		<img src={streamUrl} alt="Video Stream" />
 	{/if}
-	<p>Status: {status} {message}</p>
+	<p>Status: {status} {message}
+		{#if battery}
+			Voltage: {battery.loadVoltage}V
+			Current: {battery.current}mA
+			Power: {battery.power}W
+			Capacity: {Math.round(battery.percent)}%
+		{/if}
+	</p>
 	<textarea class="logs">{logs}</textarea>
 </main>
 

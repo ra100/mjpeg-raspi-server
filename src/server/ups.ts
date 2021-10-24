@@ -246,11 +246,11 @@ export class INA219 {
   }
 }
 
-type UPSstate = {
+export type UPSstate = {
   loadVoltage: number // V
   shuntVoltage: number // V
   psuVoltage: number // V
-  current: number // A
+  current: number // mA
   power: number // W
   percent: number // %
 }
