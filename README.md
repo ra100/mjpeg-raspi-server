@@ -9,6 +9,7 @@
 
 - Raspberry Pi Zero W (or other wireless RPi)
 - HDMI to CSI adapter [Waveshare HDMI - CSI](https://www.waveshare.com/hdmi-to-csi-adapter.htm)
+- Raspberry Pi UPS HAT [Waveshare UPS HAT](https://www.waveshare.com/wiki/UPS_HAT)
 
 ### Software
 

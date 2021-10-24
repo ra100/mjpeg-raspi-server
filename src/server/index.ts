@@ -2,7 +2,9 @@ import path from 'path'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
+
 import {Config, getStatus, start, stop} from './camera'
+import {getUPSstate} from './ups'
 
 const fastify = Fastify({
   logger: true,
@@ -13,7 +15,7 @@ fastify.register(fastifyStatic, {
   prefix: '/',
 })
 
-fastify.get('/', (request, reply) => {
+fastify.get('/', (_request, reply) => {
   reply.sendFile('index.html')
 })
 
@@ -22,13 +24,18 @@ fastify.post<{Body: Config}>('/actions/start', async (request, reply) => {
   reply.send({result: 'started'})
 })
 
-fastify.post('/actions/stop', async (request, reply) => {
+fastify.post('/actions/stop', async (_request, reply) => {
   await stop()
   reply.send({result: 'stopped'})
 })
 
-fastify.get('/status', (request, reply) => {
+fastify.get('/status', (_request, reply) => {
   reply.send(getStatus())
+})
+
+fastify.get('/battery', (_request, reply) => {
+  const batteryStatus = getUPSstate()
+  reply.send(batteryStatus)
 })
 
 fastify.listen(process.env.PORT || 3000, '0.0.0.0', (err, address) => {
