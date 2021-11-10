@@ -46,6 +46,7 @@ const getCameraOptions = ({
 
 export const start = (config: Config): Promise<void> => {
   if (task.instance?.pid) {
+    task.messages.add('\nCamera already running\n')
     return Promise.resolve()
   }
 
