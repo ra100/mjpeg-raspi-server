@@ -20,9 +20,6 @@
   const callApi = async (path: string, method: 'POST' | 'GET' = 'POST', body?: Record<string, any>) => {
 		message = 'Loading'
 
-		const configToSave = JSON.stringify(config)
-		localStorage.setItem(CONFIG_KEY, configToSave)
-
     try {
       const response = await fetch(path, {
 				method,
@@ -42,6 +39,9 @@
   }
 
   const handleStart = async () => {
+		const configToSave = JSON.stringify(config)
+		localStorage.setItem(CONFIG_KEY, configToSave)
+
 		await	callApi('actions/start', 'POST', config)
 		await handleLogs()
 	}
