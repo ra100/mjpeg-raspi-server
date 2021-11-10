@@ -15,8 +15,13 @@
 	}
 	export const streamUrl: string = `http://${document.domain}:8080/?action=stream`;
 
+	const CONFIG_KEY = 'mjpeg:config'
+
   const callApi = async (path: string, method: 'POST' | 'GET' = 'POST', body?: Record<string, any>) => {
 		message = 'Loading'
+
+		const configToSave = JSON.stringify(config)
+		localStorage.setItem(CONFIG_KEY, configToSave)
 
     try {
       const response = await fetch(path, {
@@ -61,6 +66,19 @@
 	onMount(() => {
 		getBattery()
 		setInterval(getBattery, 20_000)
+
+		const savedConfig = localStorage.getItem(CONFIG_KEY)
+		if (savedConfig) {
+			try {
+				const parsed = JSON.parse(savedConfig)
+				config.fps = parsed.fps
+				config.width = parsed.width
+				config.aspectRatio = parsed.aspectRatio
+				config.args = parsed.args
+			} catch (err) {
+				console.error(err)
+			}
+		}
 	})
 </script>
 
