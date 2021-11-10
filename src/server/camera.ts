@@ -45,7 +45,7 @@ const getCameraOptions = ({
   ].filter(Boolean)
 
 export const start = (config: Config): Promise<void> => {
-  if (task.instance?.connected) {
+  if (task.instance?.pid) {
     return Promise.resolve()
   }
 
