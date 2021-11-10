@@ -108,6 +108,7 @@ const forceKillMjpg = () => {
 export const stop = (): Promise<void> => {
   if (!task.instance.pid) {
     forceKillMjpg()
+    task.instance = null
     return Promise.resolve()
   }
 
@@ -115,6 +116,7 @@ export const stop = (): Promise<void> => {
     task.instance.on('exit', (code) => {
       task.status = 'closed'
       task.instance.removeAllListeners()
+      task.instance = null
       resolve()
     })
 
