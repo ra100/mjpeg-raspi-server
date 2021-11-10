@@ -7,7 +7,7 @@ export type Config = {
   args?: string
 }
 
-type Status = 'running' | 'closed' | 'starting' | 'camera_on' | "errored"
+type Status = 'running' | 'closed' | 'starting' | 'camera_on' | 'errored'
 
 const task: {
   instance: ChildProcess | null
@@ -39,7 +39,9 @@ const getCameraOptions = ({
       '-y',
       Math.floor(width / aspectRatio),
       args,
-    ].filter(Boolean).join(' ')}`,
+    ]
+      .filter(Boolean)
+      .join(' ')}`,
   ].filter(Boolean)
 
 export const start = (config: Config): Promise<void> => {
@@ -49,7 +51,7 @@ export const start = (config: Config): Promise<void> => {
 
   const path = process.env.MJPEG_CAMERA_PATH || __dirname
 
-  const options = getCameraOptions(config);
+  const options = getCameraOptions(config)
 
   console.log('Starging ', path, options)
 
@@ -76,13 +78,13 @@ export const start = (config: Config): Promise<void> => {
     }
 
     const messageListener = (data: Buffer) => {
-      const message = data.toString();
+      const message = data.toString()
       task.messages.add(message)
       console.log(message)
 
       if (message.includes('Encoder Buffer Size')) {
         task.status = 'camera_on'
-        task.instance.off('exit', closeListener);
+        task.instance.off('exit', closeListener)
         resolve()
       }
     }
@@ -93,8 +95,18 @@ export const start = (config: Config): Promise<void> => {
   })
 }
 
+const forceKillMjpg = () => {
+  try {
+    execSync('pkill -f mjpg_streamer')
+  } catch (e) {
+    task.messages.add('Failed to kill mjpg_streamer')
+    task.messages.add(e.message)
+  }
+}
+
 export const stop = (): Promise<void> => {
   if (!task.instance.pid) {
+    forceKillMjpg()
     return Promise.resolve()
   }
 
