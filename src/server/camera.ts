@@ -44,6 +44,14 @@ const getCameraOptions = ({
       .join(' ')}`,
   ].filter(Boolean)
 
+const closeListener = (callback?: () => void) => (code: number) => {
+  task.status = 'closed'
+  task.messages.add(`child task exited with code ${code}`)
+  task.instance.removeAllListeners()
+  task.instance = null
+  callback()
+}
+
 export const start = (config: Config): Promise<void> => {
   if (task.instance?.pid) {
     task.messages.add('\nCamera already running\n')
@@ -71,12 +79,7 @@ export const start = (config: Config): Promise<void> => {
   })
 
   return new Promise((resolve, reject) => {
-    const closeListener = (code: number) => {
-      task.status = 'closed'
-      task.messages.add(`child task exited with code ${code}`)
-      task.instance.removeAllListeners()
-      reject()
-    }
+    const startFailedListener = closeListener(reject)
 
     const messageListener = (data: Buffer) => {
       const message = data.toString()
@@ -85,14 +88,15 @@ export const start = (config: Config): Promise<void> => {
 
       if (message.includes('Encoder Buffer Size')) {
         task.status = 'camera_on'
-        task.instance.off('exit', closeListener)
+        task.instance.off('exit', startFailedListener)
+        task.instance.on('exit', closeListener())
         resolve()
       }
     }
 
     task.instance.stdout.on('data', messageListener)
     task.instance.stderr.on('data', messageListener)
-    task.instance.on('exit', closeListener)
+    task.instance.on('exit', startFailedListener)
   })
 }
 
