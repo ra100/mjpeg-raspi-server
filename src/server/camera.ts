@@ -119,7 +119,7 @@ export const stop = (): Promise<void> => {
   return new Promise((resolve) => {
     task.instance.on('exit', (code) => {
       task.status = 'closed'
-      task.instance.removeAllListeners()
+      task.instance?.removeAllListeners()
       task.instance = null
       resolve()
     })
