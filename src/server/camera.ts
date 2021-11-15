@@ -124,7 +124,7 @@ export const stop = (): Promise<void> => {
       resolve()
     })
 
-    task.instance.kill('SIGTERM')
+    task.instance.kill('SIGINT')
   })
 }
 
