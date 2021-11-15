@@ -49,7 +49,7 @@ const closeListener = (callback?: () => void) => (code: number) => {
   task.messages.add(`child task exited with code ${code}`)
   task.instance.removeAllListeners()
   task.instance = null
-  callback()
+  callback?.()
 }
 
 export const start = (config: Config): Promise<void> => {
