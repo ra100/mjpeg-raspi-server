@@ -1,6 +1,5 @@
 import path from 'path'
-import net from 'net'
-import {Duplex} from 'stream'
+import {Client} from 'undici'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
@@ -9,6 +8,8 @@ import {Config, getStatus, start, stop} from './camera'
 import {getUPSstate} from './ups'
 
 const streamerPort = 8080
+
+const client = new Client(`http://localhost:${streamerPort}`)
 
 const fastify = Fastify({
   logger: true,
@@ -42,15 +43,17 @@ fastify.get('/battery', (_request, reply) => {
   reply.send(batteryStatus)
 })
 
-fastify.get('/stream', (_request, reply) => {
-  const stream = new Duplex()
-  const tcpServer = net.createServer((socket) => {
-    socket.pipe(stream)
-  })
-
-  tcpServer.maxConnections = 1
-
-  tcpServer.listen(streamerPort)
+fastify.get('/stream', async (_request, reply) => {
+  const stream = client.pipeline(
+    {path: '/', method: 'GET'},
+    ({body, statusCode}) => {
+      if (statusCode !== 200) {
+        reply.status(statusCode).send('error')
+        return
+      }
+      return body
+    }
+  )
 
   reply.type('image/jpeg').send(stream)
 })
