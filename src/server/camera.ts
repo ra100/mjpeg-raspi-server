@@ -3,6 +3,7 @@ import {spawn, execSync, ChildProcess} from 'child_process'
 export type Config = {
   fps?: number
   port?: number
+  videoBoundary: string
 }
 
 type Status = 'running' | 'closed' | 'starting' | 'camera_on' | 'errored'
@@ -19,7 +20,11 @@ const task: {
 
 const defaultAspectRatio = 1920 / 1080
 
-const getCameraOptions = ({fps = 24, port = 8080}: Config): string[] => [
+const getCameraOptions = ({
+  fps = 24,
+  port = 8080,
+  videoBoundary,
+}: Config): string[] => [
   'v4l2src',
   '!',
   `video/x-raw,format=UYVY,interlace-mode=progressive,colorimetry=bt601,framerate=${fps}/1,width=1920,height=1080`,
@@ -27,7 +32,8 @@ const getCameraOptions = ({fps = 24, port = 8080}: Config): string[] => [
   'v4l2jpegenc',
   'output-io-mode=dmabuf-import',
   '!',
-  'rtpjpegpay',
+  'multipartmux',
+  `boundary="${videoBoundary}"`,
   '!',
   'tcpserversink',
   'host=localhost',
@@ -42,13 +48,16 @@ const closeListener = (callback?: () => void) => (code: number) => {
   callback?.()
 }
 
-export const start = (config: Config, port: number): Promise<void> => {
+export const start = (
+  config: Config,
+  {port, videoBoundary}: {port: number; videoBoundary: string}
+): Promise<void> => {
   if (task.instance?.pid) {
     task.messages.add('\nCamera already running\n')
     return Promise.resolve()
   }
 
-  const options = getCameraOptions({...config, port})
+  const options = getCameraOptions({...config, port, videoBoundary})
 
   console.log('Starging ', options)
 

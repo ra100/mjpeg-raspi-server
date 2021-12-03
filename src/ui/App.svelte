@@ -10,7 +10,7 @@
 	export const config = {
 		fps: 24,
 	}
-	export const streamUrl: string = '/stream';
+	export const streamUrl: string = '/stream.mjpeg';
 
 	const CONFIG_KEY = 'mjpeg:config'
 
