@@ -29,7 +29,7 @@ const getCameraOptions = ({fps = 24, port = 8080}: Config): string[] => [
   '!',
   'rtpjpegpay',
   '!',
-  'tcpclientsink',
+  'tcpserversink',
   'host=localhost',
   `port=${port}`,
 ]
@@ -48,14 +48,18 @@ export const start = (config: Config, port: number): Promise<void> => {
     return Promise.resolve()
   }
 
-  const path = process.env.MJPEG_CAMERA_PATH || __dirname
-
   const options = getCameraOptions({...config, port})
 
-  console.log('Starging ', path, options)
+  console.log('Starging ', options)
 
-  execSync('v4l2-ctl --query-dv-timings')
-  execSync('v4l2-ctl --set-dv-bt-timings query')
+  try {
+    task.messages.add(execSync('v4l2-ctl --query-dv-timings').toString())
+    task.messages.add(execSync('v4l2-ctl --set-dv-bt-timings query').toString())
+  } catch (err) {
+    const error = err.message.toString()
+    task.messages.add(error)
+    console.error(error)
+  }
 
   task.instance = spawn('gst-launch-1.0', options)
 
