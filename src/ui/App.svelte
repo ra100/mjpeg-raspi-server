@@ -7,13 +7,11 @@
 	export let logs: string = ''
 	export let status: string = 'offline'
 	export let battery: UPSstate | null = null
+	export let fullscreen = false
 	export const config = {
-		fps: 5,
-		width: 800,
-		aspectRatio: 1920 / 1080,
-		args: ''
+		fps: 24,
 	}
-	export const streamUrl: string = `http://${document.domain}:8080/?action=stream`;
+	export const streamUrl: string = '/stream.mjpeg';
 
 	const CONFIG_KEY = 'mjpeg:config'
 
@@ -63,6 +61,10 @@
 		callApi('battery', 'GET').then((batteryStatus) => {battery = batteryStatus})
 	}
 
+	const toggleFullscreen = () => {
+		fullscreen = !fullscreen
+	}
+
 	onMount(() => {
 		getBattery()
 		setInterval(getBattery, 20_000)
@@ -72,9 +74,6 @@
 			try {
 				const parsed = JSON.parse(savedConfig)
 				config.fps = parsed.fps
-				config.width = parsed.width
-				config.aspectRatio = parsed.aspectRatio
-				config.args = parsed.args
 			} catch (err) {
 				console.error(err)
 			}
@@ -92,18 +91,12 @@
 			<label for="fps">FPS</label>
 			<input type="number" name="fps" bind:value={config.fps}/>
 		</div>
-		<div class="field-width field">
-			<label for="width">Width</label>
-			<input type="text" name="width" bind:value={config.width}/>
-		</div>
-		<div class="field-args field">
-			<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
-			<input type="text" name="args" bind:value={config.args}/>
-		</div>
 	</div>
 	<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
 	{#if status === 'camera_on'}
-		<img src={streamUrl} alt="Video Stream" />
+	<div class="video-wrapper" class:fullscreen={fullscreen}>
+		<img src={streamUrl} alt="Video Stream" class="video" on:click={toggleFullscreen}/>
+	</div>
 	{/if}
 	<p>Status: {status} {message}
 		{#if battery}
@@ -131,7 +124,7 @@
 	.config {
 		display: flex;
 		flex-flow: row;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 	}
 
@@ -140,23 +133,34 @@
 	}
 
 	.field-fps {
-		width: 3rem;
-	}
-
-	.field-width {
-		width: 4rem;
-	}
-
-	.field-args {
+		max-width: 3rem;
 		flex: 1;
+	}
+
+	.video-wrapper {
+		width: 100vw;
+	}
+
+	.video-wrapper.fullscreen {
+		position: fixed;
+		top: 0;
+		left: 0;
+		background-color: #000000;
+		height: 100vh;
+		width: 100vw;
+	}
+
+	.fullscreen .video {
+		width: 100vw;
+	}
+
+	.video {
+		clear: both;
+		margin: auto;
 	}
 
 	input {
 		max-width: 100%;
-	}
-
-	.field-args input {
-		width: 100%;
 	}
 
 	.stream-button {

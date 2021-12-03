@@ -2,4 +2,5 @@
 /public/build/
 /build/
 
+.vscode/sftp.json
 .DS_Store

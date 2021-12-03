@@ -28,8 +28,8 @@ Install nodejs on your Raspberry Pi.
   - on Pi Zero (armv6):
   - run `NVM_NODEJS_ORG_MIRROR=https://unofficial-builds.nodejs.org/download/release/ nvm install 17`
   - for armv7 run `nvm install 17`
-- install mjpg-streamer:
-  - follow the instructions on how to build: https://github.com/jacksonliam/mjpg-streamer#building--installation
+- install gstreamer packages:
+  - TODO
 - checkout this repository and build the project:
 
   - run:
@@ -44,22 +44,13 @@ Install nodejs on your Raspberry Pi.
 
 ## How to run
 
-Specify path to mjpg-camera build and run:
-
 ```shell
-export MJPEG_CAMERA_PATH=/home/pi/mjpg-streamer/mjpg-streamer-experimental
 npm start
-```
-
-or
-
-```shell
-MJPEG_CAMERA_PATH=/home/pi/mjpg-streamer/mjpg-streamer-experimental npm start
 ```
 
 To have it automatically start on boot:
 
-- modify `mjpeg.service` to match your configuration -> node path and mjpg-streamer path
+- modify `mjpeg.service` to match your configuration -> node path
 - `sudo make service`
 - `sudo systemctl start mjpeg.service`
 
