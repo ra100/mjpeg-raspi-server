@@ -2,9 +2,12 @@ import path from 'path'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
+import fastifyProxy from 'fastify-http-proxy'
 
 import {Config, getStatus, start, stop} from './camera'
 import {getUPSstate} from './ups'
+
+const streamerPort = 8080
 
 const fastify = Fastify({
   logger: true,
@@ -15,12 +18,24 @@ fastify.register(fastifyStatic, {
   prefix: '/',
 })
 
+fastify.register(fastifyProxy, {
+  upstream: `http://localhost:${streamerPort}`,
+  prefix: '/stream',
+  http2: false,
+  replyOptions: {
+    rewriteHeaders: (headers) => ({
+      ...headers,
+      'content-type': 'image/jpeg',
+    }),
+  },
+})
+
 fastify.get('/', (_request, reply) => {
   reply.sendFile('index.html')
 })
 
 fastify.post<{Body: Config}>('/actions/start', async (request, reply) => {
-  await start(request.body)
+  await start(request.body, streamerPort)
   reply.send({result: 'started'})
 })
 

@@ -8,12 +8,9 @@
 	export let status: string = 'offline'
 	export let battery: UPSstate | null = null
 	export const config = {
-		fps: 5,
-		width: 800,
-		aspectRatio: 1920 / 1080,
-		args: ''
+		fps: 24,
 	}
-	export const streamUrl: string = `http://${document.domain}:8080/?action=stream`;
+	export const streamUrl: string = '/stream';
 
 	const CONFIG_KEY = 'mjpeg:config'
 
@@ -72,9 +69,6 @@
 			try {
 				const parsed = JSON.parse(savedConfig)
 				config.fps = parsed.fps
-				config.width = parsed.width
-				config.aspectRatio = parsed.aspectRatio
-				config.args = parsed.args
 			} catch (err) {
 				console.error(err)
 			}
@@ -91,14 +85,6 @@
 		<div class="field-fps field">
 			<label for="fps">FPS</label>
 			<input type="number" name="fps" bind:value={config.fps}/>
-		</div>
-		<div class="field-width field">
-			<label for="width">Width</label>
-			<input type="text" name="width" bind:value={config.width}/>
-		</div>
-		<div class="field-args field">
-			<label for="args">Extra arguments <a target="_blank" href="https://github.com/jacksonliam/mjpg-streamer/blob/master/mjpg-streamer-experimental/plugins/input_raspicam/README.md">see docs</a></label>
-			<input type="text" name="args" bind:value={config.args}/>
 		</div>
 	</div>
 	<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
@@ -143,20 +129,8 @@
 		width: 3rem;
 	}
 
-	.field-width {
-		width: 4rem;
-	}
-
-	.field-args {
-		flex: 1;
-	}
-
 	input {
 		max-width: 100%;
-	}
-
-	.field-args input {
-		width: 100%;
 	}
 
 	.stream-button {
