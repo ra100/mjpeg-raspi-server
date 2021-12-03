@@ -55,6 +55,7 @@ export const start = (config: Config, port: number): Promise<void> => {
   try {
     task.messages.add(execSync('v4l2-ctl --query-dv-timings').toString())
     task.messages.add(execSync('v4l2-ctl --set-dv-bt-timings query').toString())
+    task.messages.add(execSync('v4l2-ctl -V').toString())
   } catch (err) {
     const error = err.message.toString()
     task.messages.add(error)
@@ -83,7 +84,7 @@ export const start = (config: Config, port: number): Promise<void> => {
       task.messages.add(message)
       console.log(message)
 
-      if (message.includes('Encoder Buffer Size')) {
+      if (message.includes('PLAYING')) {
         task.status = 'camera_on'
         task.instance.off('exit', startFailedListener)
         task.instance.on('exit', closeListener())
