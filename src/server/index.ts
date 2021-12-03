@@ -1,5 +1,5 @@
 import path from 'path'
-import {Client} from 'undici'
+import http from 'http'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
@@ -8,8 +8,6 @@ import {Config, getStatus, start, stop} from './camera'
 import {getUPSstate} from './ups'
 
 const streamerPort = 8080
-
-const client = new Client(`http://localhost:${streamerPort}`)
 
 const fastify = Fastify({
   logger: true,
@@ -44,18 +42,21 @@ fastify.get('/battery', (_request, reply) => {
 })
 
 fastify.get('/stream', async (_request, reply) => {
-  const stream = client.pipeline(
-    {path: '/', method: 'GET'},
-    ({body, statusCode}) => {
-      if (statusCode !== 200) {
-        reply.status(statusCode).send('error')
-        return
-      }
-      return body
-    }
-  )
+  http
+    .get(`http://localhost:${streamerPort}`, (res) => {
+      res.on('data', (chunk) => {
+        reply.raw.write(chunk)
+      })
+      res.on('end', () => {
+        reply.raw.end()
+      })
+    })
+    .on('error', () => {
+      reply.send({error: 'stream not available'})
+    })
 
-  reply.type('image/jpeg').send(stream)
+  reply.raw.writeHead(200)
+  reply.raw.setHeader('Content-Type', 'image/jpeg')
 })
 
 fastify.listen(process.env.PORT || 3000, '0.0.0.0', (err, address) => {
