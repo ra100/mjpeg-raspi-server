@@ -41,7 +41,9 @@ fastify.get('/battery', (_request, reply) => {
   reply.send(batteryStatus)
 })
 
-fastify.get('/stream', async (_request, reply) => {
+fastify.get('/stream', (_request, reply) => {
+  reply.raw.writeHead(200, {'content-type': 'video/x-jpeg'})
+
   http
     .get(`http://localhost:${streamerPort}`, (res) => {
       res.on('data', (chunk) => {
@@ -54,9 +56,6 @@ fastify.get('/stream', async (_request, reply) => {
     .on('error', () => {
       reply.send({error: 'stream not available'})
     })
-
-  reply.raw.writeHead(200)
-  reply.raw.setHeader('Content-Type', 'image/jpeg')
 })
 
 fastify.listen(process.env.PORT || 3000, '0.0.0.0', (err, address) => {
