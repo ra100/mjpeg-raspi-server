@@ -1,8 +1,9 @@
 import path from 'path'
+import net from 'net'
+import {Duplex} from 'stream'
 
 import Fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
-import fastifyProxy from 'fastify-http-proxy'
 
 import {Config, getStatus, start, stop} from './camera'
 import {getUPSstate} from './ups'
@@ -16,18 +17,6 @@ const fastify = Fastify({
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, '../public'),
   prefix: '/',
-})
-
-fastify.register(fastifyProxy, {
-  upstream: `http://localhost:${streamerPort}`,
-  prefix: '/stream',
-  http2: false,
-  replyOptions: {
-    rewriteHeaders: (headers) => ({
-      ...headers,
-      'content-type': 'image/jpeg',
-    }),
-  },
 })
 
 fastify.get('/', (_request, reply) => {
@@ -51,6 +40,19 @@ fastify.get('/status', (_request, reply) => {
 fastify.get('/battery', (_request, reply) => {
   const batteryStatus = getUPSstate()
   reply.send(batteryStatus)
+})
+
+fastify.get('/stream', (_request, reply) => {
+  const stream = new Duplex()
+  const tcpServer = net.createServer((socket) => {
+    socket.pipe(stream)
+  })
+
+  tcpServer.maxConnections = 1
+
+  tcpServer.listen(streamerPort)
+
+  reply.type('image/jpeg').send(stream)
 })
 
 fastify.listen(process.env.PORT || 3000, '0.0.0.0', (err, address) => {
