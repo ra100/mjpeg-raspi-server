@@ -7,6 +7,7 @@
 	export let logs: string = ''
 	export let status: string = 'offline'
 	export let battery: UPSstate | null = null
+	export let fullscreen = false
 	export const config = {
 		fps: 24,
 	}
@@ -60,6 +61,10 @@
 		callApi('battery', 'GET').then((batteryStatus) => {battery = batteryStatus})
 	}
 
+	const toggleFullscreen = () => {
+		fullscreen = !fullscreen
+	}
+
 	onMount(() => {
 		getBattery()
 		setInterval(getBattery, 20_000)
@@ -89,7 +94,9 @@
 	</div>
 	<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
 	{#if status === 'camera_on'}
-		<img src={streamUrl} alt="Video Stream" />
+	<div class="video-wrapper" class:fullscreen={fullscreen}>
+		<img src={streamUrl} alt="Video Stream" class="video" on:click={toggleFullscreen}/>
+	</div>
 	{/if}
 	<p>Status: {status} {message}
 		{#if battery}
@@ -117,7 +124,7 @@
 	.config {
 		display: flex;
 		flex-flow: row;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 	}
 
@@ -126,7 +133,30 @@
 	}
 
 	.field-fps {
-		width: 3rem;
+		max-width: 3rem;
+		flex: 1;
+	}
+
+	.video-wrapper {
+		width: 100vw;
+	}
+
+	.video-wrapper.fullscreen {
+		position: fixed;
+		top: 0;
+		left: 0;
+		background-color: #000000;
+		height: 100vh;
+		width: 100vw;
+	}
+
+	.fullscreen .video {
+		width: 100vw;
+	}
+
+	.video {
+		clear: both;
+		margin: auto;
 	}
 
 	input {
