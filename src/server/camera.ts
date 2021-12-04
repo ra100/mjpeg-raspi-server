@@ -27,7 +27,7 @@ const getCameraOptions = ({
 }: Config): string[] => [
   'v4l2src',
   '!',
-  `video/x-raw,format=UYVY,interlace-mode=progressive,colorimetry=bt601,framerate=${fps}/1,width=1920,height=1080`,
+  `video/x-raw,format=UYVY,interlace-mode=progressive,colorimetry=bt601,framerate=${fps}/1`,
   '!',
   'v4l2jpegenc',
   'output-io-mode=dmabuf-import',
