@@ -29,7 +29,7 @@ Install nodejs on your Raspberry Pi.
   - run `NVM_NODEJS_ORG_MIRROR=https://unofficial-builds.nodejs.org/download/release/ nvm install 17`
   - for armv7 run `nvm install 17`
 - install gstreamer packages:
-  - TODO
+  - `sudo apt install gstreamer1.0-nice gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly`
 - checkout this repository and build the project:
 
   - run:
@@ -59,16 +59,19 @@ To have it automatically start on boot:
 - Flash Raspberry Pi OS Lite on the SD card
 - Update `/boot/config.txt` to enable HDMI and enable camera
   - add/uncomment:
-    ```
+    ```ini
     dtparam=i2c_arm=on
     gpu_mem=256
     start_x=1
+    dtoverlay=tc358743
     ```
+- Update `/boot/cmdline.txt` to give camera more memory
+  - add at the begining of the line: `cma=128M `
 - enable and configure WiFi in `/etc/wpa_supplicant/wpa_supplicant.conf`
 
   - create or edit the file
 
-    ```
+    ```ini
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
     update_config=1
     country=GB
