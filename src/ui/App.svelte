@@ -5,11 +5,13 @@
 
   export let message: string = ''
 	export let logs: string = ''
+	export let udp: boolean = false
 	export let status: string = 'offline'
 	export let battery: UPSstate | null = null
 	export let fullscreen = false
 	export const config = {
 		fps: 24,
+		port: 8080,
 	}
 	export const streamUrl: string = '/stream.mjpeg';
 
@@ -37,10 +39,29 @@
   }
 
   const handleStart = async () => {
+		udp = false
 		const configToSave = JSON.stringify(config)
 		localStorage.setItem(CONFIG_KEY, configToSave)
 
 		await	callApi('actions/start', 'POST', config)
+		await handleLogs()
+	}
+
+	const handleStartUdp = async () => {
+		udp = true
+		const configToSave = JSON.stringify(config)
+		localStorage.setItem(CONFIG_KEY, configToSave)
+
+		await	callApi('actions/startudp', 'POST', config)
+		await handleLogs()
+	}
+
+	const handleStartTest = async () => {
+		udp = true
+		const configToSave = JSON.stringify(config)
+		localStorage.setItem(CONFIG_KEY, configToSave)
+
+		await	callApi('actions/starttest', 'POST', config)
 		await handleLogs()
 	}
 
@@ -74,6 +95,7 @@
 			try {
 				const parsed = JSON.parse(savedConfig)
 				config.fps = parsed.fps
+				config.port = parsed.port
 			} catch (err) {
 				console.error(err)
 			}
@@ -83,6 +105,8 @@
 
 <main>
   <button on:click={handleStart}>Start</button>
+	<button on:click={handleStartUdp}>Start UDP</button>
+	<button on:click={handleStartTest}>Start Test</button>
   <button on:click={handleStop}>Stop</button>
   <button on:click={handleLogs}>Get Logs</button>
   <button on:click={handleClearLogs}>Clear Logs</button>
@@ -91,12 +115,21 @@
 			<label for="fps">FPS</label>
 			<input type="number" name="fps" bind:value={config.fps}/>
 		</div>
+		<div class="field-port field">
+			<label for="port">PORT</label>
+			<input type="number" name="port" bind:value={config.port}/>
+		</div>
 	</div>
-	<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
-	{#if status === 'camera_on'}
-	<div class="video-wrapper" class:fullscreen={fullscreen}>
-		<img src={streamUrl} alt="Video Stream" class="video" on:click={toggleFullscreen}/>
-	</div>
+	{#if !udp}
+		<a href={streamUrl} target="_blank" class="stream-button">Open video stream</a>
+	{/if}
+	{#if udp}
+		<code>gst-launch-1.0 udpsrc port={config.port} ! application/x-rtp, payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! xvimagesink</code>
+	{/if}
+	{#if status === 'camera_on' && !udp}
+		<div class="video-wrapper" class:fullscreen={fullscreen}>
+			<img src={streamUrl} alt="Video Stream" class="video" on:click={toggleFullscreen}/>
+		</div>
 	{/if}
 	<p>Status: {status} {message}
 		{#if battery}
@@ -134,6 +167,11 @@
 
 	.field-fps {
 		max-width: 3rem;
+		flex: 1;
+	}
+
+	.field-port {
+		width: 6rem;
 		flex: 1;
 	}
 

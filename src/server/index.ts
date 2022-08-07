@@ -8,8 +8,8 @@ import fastifyStatic from 'fastify-static'
 import {Config, getStatus, start, stop} from './camera'
 import {getUPSstate} from './ups'
 
-const streamerPort = 8080
-const videoBoundary = '--videoboundary'
+let streamerPort = 8080
+export const VIDEO_BOUNDARY = '--videoboundary'
 
 const fastify = Fastify({
   logger: true,
@@ -25,7 +25,27 @@ fastify.get('/', (_request, reply) => {
 })
 
 fastify.post<{Body: Config}>('/actions/start', async (request, reply) => {
-  await start(request.body, {port: streamerPort, videoBoundary})
+  await start(request.body, {
+    port: request.body.port || streamerPort,
+    videoBoundary: VIDEO_BOUNDARY,
+  })
+  reply.send({result: 'started'})
+})
+
+fastify.post<{Body: Config}>('/actions/startudp', async (request, reply) => {
+  await start(request.body, {
+    port: request.body.port || streamerPort,
+    udp: true,
+  })
+  reply.send({result: 'started'})
+})
+
+fastify.post<{Body: Config}>('/actions/starttest', async (request, reply) => {
+  await start(request.body, {
+    port: request.body.port || streamerPort,
+    udp: true,
+    test: true,
+  })
   reply.send({result: 'started'})
 })
 
@@ -48,7 +68,7 @@ fastify.get('/stream.mjpeg', (request, reply) => {
     const pipe = new PassThrough()
     client.pipe(pipe)
     reply.raw.writeHead(200, {
-      'content-type': `multipart/x-mixed-replace;boundary=${videoBoundary}`,
+      'content-type': `multipart/x-mixed-replace;boundary=${VIDEO_BOUNDARY}`,
     })
     pipe.on('data', (data: Buffer) => {
       reply.raw.write(data)
