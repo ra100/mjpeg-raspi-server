@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/ra100/mjpeg-raspi-server#readme",
   "dependencies": {
-    "fastify": "^3.22.1",
+    "fastify": "^4.24.1",
     "fastify-static": "^4.4.2",
     "i2c-bus": "^5.2.2",
     "sirv-cli": "^1.0.0"
